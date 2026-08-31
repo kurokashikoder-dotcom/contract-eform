@@ -117,7 +117,7 @@
     .status.error { color: var(--danger); background: var(--danger-bg); padding: 8px; border-radius: 7px; }
     .status.success { color: #3b5f49; background: #f2f7f4; padding: 8px; border-radius: 7px; }
 
-    /* Standard On-Screen Document Preview Container */
+    /* Generated Document Section at Bottom */
     #document-preview-wrapper {
       display: none;
       margin-top: 35px;
@@ -132,8 +132,12 @@
       justify-content: space-between;
       align-items: center;
       margin-bottom: 16px;
+      background: var(--site-soft);
+      padding: 12px 16px;
+      border: 1px solid var(--site-border);
+      border-radius: 8px;
     }
-    .preview-header h3 { margin: 0; font-size: 18px; }
+    .preview-header h3 { margin: 0; font-size: 16px; }
 
     #pdf-document {
       width: 100%;
@@ -313,16 +317,16 @@
           </div>
           
           <div class="actions">
-            <button type="button" id="download-pdf" class="primary">Generate &amp; Preview Document</button>
+            <button type="button" id="generate-pdf-btn" class="primary">Generate Proposal PDF</button>
             <button type="button" id="finalize" class="success">Submit &amp; Finalize</button>
           </div>
           <div id="final-status" class="status" aria-live="polite"></div>
 
-          <!-- Inline Visible Proposal Document Container -->
+          <!-- Document Rendered at Very Bottom of Step 4 -->
           <div id="document-preview-wrapper">
             <div class="preview-header">
-              <h3>Generated Document Preview</h3>
-              <button type="button" id="save-pdf-btn" class="primary" style="padding: 8px 14px; font-size: 13px;">Save PDF File</button>
+              <h3>Generated Proposal Document</h3>
+              <button type="button" id="save-pdf-btn" class="success" style="padding: 10px 18px; font-size: 14px;">Download PDF</button>
             </div>
 
             <div id="pdf-document">
@@ -582,8 +586,24 @@
         $('pdf-signed-date').textContent = localDateString();
       }
 
-      async function triggerPdfDownload() {
-        setFinalStatus('Generating PDF download...', 'success');
+      // 1. Generate Proposal PDF (Only builds and displays at bottom)
+      $('generate-pdf-btn').addEventListener('click', () => {
+        if (state.signaturePad && state.signaturePad.isEmpty()) {
+          setFinalStatus('Please sign before generating the proposal document.', 'error');
+          return;
+        }
+
+        compileProposalData();
+        
+        const wrapper = $('document-preview-wrapper');
+        wrapper.classList.add('visible');
+        wrapper.scrollIntoView({ behavior: 'smooth', block: 'start' });
+        setFinalStatus('Proposal document generated below. Click "Download PDF" to save it.', 'success');
+      });
+
+      // 2. Download PDF (Triggers actual file save when user clicks the save button on the generated section)
+      $('save-pdf-btn').addEventListener('click', async () => {
+        setFinalStatus('Downloading PDF...', 'success');
         const target = $('pdf-document');
         const opt = {
           margin: 0,
@@ -598,27 +618,9 @@
           setFinalStatus('PDF downloaded successfully!', 'success');
         } catch (err) {
           console.error(err);
-          setFinalStatus('Error downloading PDF. Try clicking Save PDF File.', 'error');
+          setFinalStatus('Error generating download file. Please try again.', 'error');
         }
-      }
-
-      // Generate & Display Document Handler
-      $('download-pdf').addEventListener('click', () => {
-        if (state.signaturePad && state.signaturePad.isEmpty()) {
-          setFinalStatus('Please sign before downloading the PDF proposal.', 'error');
-          return;
-        }
-
-        compileProposalData();
-        
-        const wrapper = $('document-preview-wrapper');
-        wrapper.classList.add('visible');
-        wrapper.scrollIntoView({ behavior: 'smooth', block: 'start' });
-
-        triggerPdfDownload();
       });
-
-      $('save-pdf-btn').addEventListener('click', triggerPdfDownload);
 
       // Submit Form Handler
       $('finalize').addEventListener('click', () => {
