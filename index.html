@@ -76,7 +76,7 @@
 
     .service-list { display: grid; gap: 10px; }
     .service-row { display: flex; justify-content: space-between; gap: 16px; align-items: center; padding: 13px 14px; border: 1px solid var(--site-border); border-radius: 10px; background: #fff; transition: .15s ease; }
-    .service-row:hover { background: #fafafa; border-color: #d4d7da; }
+    .service-row:hover { background: #faffaf; border-color: #d4d7da; }
     .service-row .left { display: flex; align-items: flex-start; gap: 10px; min-width: 0; }
     .service-row input { margin-top: 3px; accent-color: var(--site-accent); }
     .service-name { font-weight: 600; }
@@ -117,14 +117,14 @@
     .status.error { color: var(--danger); background: var(--danger-bg); padding: 8px; border-radius: 7px; }
     .status.success { color: #3b5f49; background: #f2f7f4; padding: 8px; border-radius: 7px; }
 
-    /* PDF document rendered off-screen via negative left offset so it stays fully rendered in memory */
+    /* PDF container held hidden off-screen until render trigger */
     #pdf-document {
       position: absolute;
       top: 0;
       left: -9999px;
       width: 816px;
-      background: #fff;
-      color: #222;
+      background: #ffffff;
+      color: #222222;
     }
     #pdf-document .pdf-page { width: 816px; min-height: 1056px; padding: 48px; background: #fff; page-break-after: always; position: relative; }
     #pdf-document .pdf-page:last-child { page-break-after: auto; }
@@ -306,16 +306,17 @@
     </main>
   </div>
 
-  <!-- Dedicated PDF render target -->
+  <!-- Master Generated PDF Template -->
   <div id="pdf-document" aria-hidden="true">
     <section class="pdf-page">
       <div class="pdf-brand">Exhale Elite Maids</div>
       <div class="pdf-title">Professional Cleaning Services · Proposal &amp; Booking Agreement</div>
       <div style="margin-top:16px"><span class="readonly-badge">Client Proposal</span></div>
       
+      <!-- Step 1 Collected Info -->
       <div class="pdf-meta">
         <div class="pdf-card">
-          <h3>Client</h3>
+          <h3>Client Information</h3>
           <p><strong id="pdf-client-name">—</strong></p>
           <p id="pdf-client-email">—</p>
           <p id="pdf-client-phone">—</p>
@@ -324,18 +325,20 @@
           <h3>Service Details</h3>
           <p><strong>Service Date:</strong> <span id="pdf-service-date">—</span></p>
           <p><strong>Property:</strong> <span id="pdf-address">—</span></p>
-          <p><strong>Generated:</strong> <span id="pdf-generated">—</span></p>
+          <p><strong>Generated Date:</strong> <span id="pdf-generated">—</span></p>
         </div>
       </div>
       
+      <!-- Step 2 Collected Services -->
       <div class="pdf-section">
-        <h2>Services Included</h2>
+        <h2>Services Selected</h2>
         <table class="pdf-table">
-          <thead><tr><th>Service</th><th>Proposed Price</th></tr></thead>
+          <thead><tr><th>Service Name</th><th>Quoted Price</th></tr></thead>
           <tbody id="pdf-services"></tbody>
         </table>
       </div>
       
+      <!-- Step 3 Collected Pricing -->
       <div class="pdf-total">
         <div><span>Service Subtotal</span><span id="pdf-subtotal">$0.00</span></div>
         <div><span>Travel / Mileage Fee</span><span id="pdf-travel">$0.00</span></div>
@@ -348,6 +351,7 @@
       <div class="pdf-footer"><span>Exhale Elite Maids</span><span>Proposal Summary · Page 1 of 2</span></div>
     </section>
     
+    <!-- Step 4 Collected Terms & Authorization -->
     <section class="pdf-page">
       <div class="pdf-brand">Exhale Elite Maids</div>
       <div class="pdf-title">Terms, Policies &amp; Client Authorization</div>
@@ -443,7 +447,7 @@
         });
       });
 
-      // Calculate Services
+      // Step 2 & 3 Service and Pricing calculation
       function calculateServices() {
         const selected = document.querySelectorAll('.service:checked');
         const list = $('line-items');
@@ -491,7 +495,7 @@
         $('display-deposit').textContent = fmt(travelFee + supply);
       }
 
-      // Signature Pad
+      // Step 4 Signature pad setup
       function resizeSignatureCanvas(init = false) {
         const canvas = $('signature-pad');
         const ratio = Math.max(window.devicePixelRatio || 1, 1);
@@ -508,8 +512,9 @@
 
       $('clear-signature').addEventListener('click', () => { if (state.signaturePad) state.signaturePad.clear(); });
 
-      // PDF Prep
-      function prepPDF() {
+      // Compile selected information from Step 1, Step 2, Step 3, & Step 4 into the PDF document model
+      function compileProposalData() {
+        // Step 1: Client Info
         $('pdf-client-name').textContent = $('client-name').value || 'Not specified';
         $('pdf-client-email').textContent = $('client-email').value || 'Not specified';
         $('pdf-client-phone').textContent = $('client-phone').value || 'Not specified';
@@ -517,6 +522,7 @@
         $('pdf-address').textContent = $('client-address').value || 'Not specified';
         $('pdf-generated').textContent = localDateString();
 
+        // Step 2: Selected Services
         const selected = document.querySelectorAll('.service:checked');
         const manualPrices = document.querySelectorAll('.manual-price');
         const tbody = $('pdf-services');
@@ -531,6 +537,7 @@
           });
         }
 
+        // Step 3: Pricing Totals
         const subtotal = parseFloat($('input-subtotal').value) || 0;
         const miles = parseFloat($('input-mileage').value) || 0;
         const supply = parseFloat($('input-supply').value) || 0;
@@ -542,6 +549,7 @@
         $('pdf-total').textContent = fmt(subtotal + travel + supply);
         $('pdf-deposit').textContent = fmt(travel + supply);
 
+        // Step 4: Authorization & Signature
         if (state.signaturePad && !state.signaturePad.isEmpty()) {
           $('pdf-signature').src = state.signaturePad.toDataURL();
           $('pdf-signature').style.display = 'block';
@@ -553,25 +561,35 @@
         $('pdf-signed-date').textContent = localDateString();
       }
 
-      // Download PDF
+      // Download PDF Event Handler
       $('download-pdf').addEventListener('click', async () => {
         if (state.signaturePad && state.signaturePad.isEmpty()) {
           setFinalStatus('Please sign before downloading the PDF proposal.', 'error');
           return;
         }
 
-        setFinalStatus('Generating PDF, please wait...', 'success');
-        prepPDF();
-
-        // Brief delay to allow signature image & DOM updates to paint
-        await new Promise(resolve => setTimeout(resolve, 150));
+        setFinalStatus('Generating PDF proposal, please wait...', 'success');
+        
+        // 1. Compile form data into template
+        compileProposalData();
 
         const target = $('pdf-document');
+
+        // 2. Temporarily bring container into visible rendering view at top-left position (0,0) for html2canvas
+        target.style.position = 'fixed';
+        target.style.top = '0';
+        target.style.left = '0';
+        target.style.zIndex = '99999';
+        target.style.display = 'block';
+
+        // Brief delay to guarantee browser render paint
+        await new Promise(resolve => setTimeout(resolve, 200));
+
         const opt = {
           margin: 0,
           filename: sanitizeFilename($('client-name').value) + '_Proposal.pdf',
           image: { type: 'jpeg', quality: 0.98 },
-          html2canvas: { scale: 2, useCORS: true, scrollX: 0, scrollY: 0 },
+          html2canvas: { scale: 2, useCORS: true, logging: false },
           jsPDF: { unit: 'in', format: 'letter', orientation: 'portrait' }
         };
 
@@ -581,10 +599,16 @@
         } catch (err) {
           console.error(err);
           setFinalStatus('Error generating PDF. Please try again.', 'error');
+        } finally {
+          // 3. Return target container back to off-screen hidden state
+          target.style.position = 'absolute';
+          target.style.left = '-9999px';
+          target.style.top = '0';
+          target.style.zIndex = '-9999';
         }
       });
 
-      // Submit Form
+      // Submit Form Handler
       $('finalize').addEventListener('click', () => {
         if (state.signaturePad && state.signaturePad.isEmpty()) {
           setFinalStatus('Please sign before finalizing.', 'error');
