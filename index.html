@@ -41,7 +41,7 @@
     button, input { font: inherit; }
     button { cursor: pointer; }
     .app { width: 100%; overflow-x: hidden; }
-    .shell { max-width: var(--site-max-width); margin: 0 auto; padding: 0 16px; }
+    .shell { max-width: var(--site-max-width); margin: 0 auto; padding: 0 16px 40px; }
 
     .header { padding: 26px 0 20px; text-align: center; border-bottom: 1px solid var(--site-border); }
     .header h1 { margin: 0; font-size: clamp(28px, 4vw, 42px); letter-spacing: .07em; text-transform: uppercase; }
@@ -117,17 +117,37 @@
     .status.error { color: var(--danger); background: var(--danger-bg); padding: 8px; border-radius: 7px; }
     .status.success { color: #3b5f49; background: #f2f7f4; padding: 8px; border-radius: 7px; }
 
-    /* Target template off-screen positioning */
+    /* Standard On-Screen Document Preview Container */
+    #document-preview-wrapper {
+      display: none;
+      margin-top: 35px;
+      padding-top: 25px;
+      border-top: 2px dashed var(--site-border);
+    }
+    #document-preview-wrapper.visible {
+      display: block;
+    }
+    .preview-header {
+      display: flex;
+      justify-content: space-between;
+      align-items: center;
+      margin-bottom: 16px;
+    }
+    .preview-header h3 { margin: 0; font-size: 18px; }
+
     #pdf-document {
-      position: absolute;
-      top: 0;
-      left: -9999px;
-      width: 816px;
+      width: 100%;
+      max-width: 816px;
+      margin: 0 auto;
       background: #ffffff;
       color: #222222;
+      border: 1px solid var(--site-border);
+      border-radius: 8px;
+      box-shadow: 0 4px 18px rgba(0,0,0,0.06);
+      overflow: hidden;
     }
-    #pdf-document .pdf-page { width: 816px; min-height: 1056px; padding: 48px; background: #fff; page-break-after: always; position: relative; box-sizing: border-box; }
-    #pdf-document .pdf-page:last-child { page-break-after: auto; }
+    #pdf-document .pdf-page { width: 100%; min-height: 1056px; padding: 48px; background: #fff; position: relative; box-sizing: border-box; }
+    #pdf-document .pdf-page:first-child { border-bottom: 2px dashed #e3e5e7; }
     #pdf-document h1, #pdf-document h2, #pdf-document h3 { margin: 0; }
     .pdf-brand { font-size: 25px; font-weight: 800; letter-spacing: .06em; text-transform: uppercase; }
     .pdf-title { margin-top: 4px !important; font-size: 13px; color: #656b70; }
@@ -147,13 +167,13 @@
     .pdf-total .grand { border-top: 1px solid #cfd3d7; margin-top: 4px; padding-top: 9px; font-size: 16px; font-weight: 800; }
     .pdf-total .deposit { border-top: 1px solid #eceeef; margin-top: 4px; padding-top: 8px; font-weight: 700; }
     .pdf-note { margin-top: 14px; padding: 10px 12px; border: 1px solid #dfe2e5; border-radius: 7px; background: #f8f9fa; font-size: 11px; line-height: 1.45; }
-    .pdf-footer { position: absolute; left: 48px; right: 48px; bottom: 25px; display: flex; justify-content: space-between; color: #858a90; font-size: 9px; }
+    .pdf-footer { margin-top: 40px; display: flex; justify-content: space-between; color: #858a90; font-size: 9px; }
     .pdf-policy { font-size: 11px; line-height: 1.5; }
     .pdf-policy h3 { font-size: 12px; margin: 0 0 4px; }
     .pdf-policy p { margin: 0 0 9px; }
     
-    .sig-preview { margin-top: 15px; border-bottom: 1px solid #222; height: 110px; display: flex; align-items: flex-end; justify-content: flex-start; }
-    .sig-preview img { width: 300px; height: 90px; object-fit: contain; }
+    .sig-preview { margin-top: 15px; border-bottom: 1px solid #222; height: 100px; display: flex; align-items: flex-end; justify-content: flex-start; }
+    .sig-preview img { width: 280px; height: 80px; object-fit: contain; }
     .sig-label { font-size: 10px; color: #6c7278; margin-top: 5px; }
     .approval-grid { display: grid; grid-template-columns: 1fr 1fr; gap: 20px; margin-top: 18px; }
     .approval-field { border-bottom: 1px solid #555; padding: 14px 4px 6px; font-size: 11px; }
@@ -167,6 +187,8 @@
       .price-note { display: none; }
       .actions, .nav { flex-direction: column; }
       .actions button, .nav button { width: 100%; }
+      #pdf-document .pdf-page { padding: 20px; }
+      .pdf-meta { grid-template-columns: 1fr; }
     }
   </style>
 </head>
@@ -291,10 +313,92 @@
           </div>
           
           <div class="actions">
-            <button type="button" id="download-pdf" class="primary">Download Proposal PDF</button>
+            <button type="button" id="download-pdf" class="primary">Generate &amp; Preview Document</button>
             <button type="button" id="finalize" class="success">Submit &amp; Finalize</button>
           </div>
           <div id="final-status" class="status" aria-live="polite"></div>
+
+          <!-- Inline Visible Proposal Document Container -->
+          <div id="document-preview-wrapper">
+            <div class="preview-header">
+              <h3>Generated Document Preview</h3>
+              <button type="button" id="save-pdf-btn" class="primary" style="padding: 8px 14px; font-size: 13px;">Save PDF File</button>
+            </div>
+
+            <div id="pdf-document">
+              <section class="pdf-page">
+                <div class="pdf-brand">Exhale Elite Maids</div>
+                <div class="pdf-title">Professional Cleaning Services · Proposal &amp; Booking Agreement</div>
+                <div style="margin-top:16px"><span class="readonly-badge">Client Proposal</span></div>
+                
+                <div class="pdf-meta">
+                  <div class="pdf-card">
+                    <h3>Client Information</h3>
+                    <p><strong id="pdf-client-name">—</strong></p>
+                    <p id="pdf-client-email">—</p>
+                    <p id="pdf-client-phone">—</p>
+                  </div>
+                  <div class="pdf-card">
+                    <h3>Service Details</h3>
+                    <p><strong>Service Date:</strong> <span id="pdf-service-date">—</span></p>
+                    <p><strong>Property:</strong> <span id="pdf-address">—</span></p>
+                    <p><strong>Generated Date:</strong> <span id="pdf-generated">—</span></p>
+                  </div>
+                </div>
+                
+                <div class="pdf-section">
+                  <h2>Services Selected</h2>
+                  <table class="pdf-table">
+                    <thead><tr><th>Service Name</th><th>Quoted Price</th></tr></thead>
+                    <tbody id="pdf-services"></tbody>
+                  </table>
+                </div>
+                
+                <div class="pdf-total">
+                  <div><span>Service Subtotal</span><span id="pdf-subtotal">$0.00</span></div>
+                  <div><span>Travel / Mileage Fee</span><span id="pdf-travel">$0.00</span></div>
+                  <div><span>Supply Fee</span><span id="pdf-supply">$0.00</span></div>
+                  <div class="grand"><span>Total Proposal</span><span id="pdf-total">$0.00</span></div>
+                  <div class="deposit"><span>Booking Deposit</span><span id="pdf-deposit">$0.00</span></div>
+                </div>
+                
+                <div class="pdf-note"><strong>Proposal summary:</strong> The services and pricing shown above represent the work selected for this proposal. Final scope and pricing are confirmed in writing before booking.</div>
+                <div class="pdf-footer"><span>Exhale Elite Maids</span><span>Proposal Summary · Page 1 of 2</span></div>
+              </section>
+              
+              <section class="pdf-page">
+                <div class="pdf-brand">Exhale Elite Maids</div>
+                <div class="pdf-title">Terms, Policies &amp; Client Authorization</div>
+                <div class="pdf-section pdf-policy">
+                  <h2>Booking Policies</h2>
+                  <h3>1. Cancellation &amp; Deposit</h3>
+                  <p>48+ hours notice: the trip-expense deposit is refunded or credited toward a future service. Less than 48 hours notice: the deposit is retained to cover fuel and supply costs already committed to the appointment.</p>
+                  <h3>2. Rescheduling</h3>
+                  <p>24+ hours notice: the deposit transfers 100% to the new date or to a different service of equal or greater value. Less than 24 hours notice or a no-show: the deposit is forfeited and a new deposit is required to rebook.</p>
+                  <h3>3. Access &amp; Utilities</h3>
+                  <p>Client agrees to provide safe property access, running hot/cold water, and functional electricity during scheduled service hours.</p>
+                  <h3>4. Inclement Weather</h3>
+                  <p>For exterior services or when travel is unsafe, Exhale Elite Maids will proactively reschedule at no penalty. The deposit carries over to the next available date.</p>
+                  <h3>5. Scope &amp; Changes</h3>
+                  <p>Final scope and pricing are confirmed in writing before booking. Material changes in property condition, access, square footage, or requested work may require a written change to the proposal price.</p>
+                </div>
+                
+                <div class="pdf-section">
+                  <h2>Client Authorization</h2>
+                  <div class="pdf-card">
+                    <p>I acknowledge that I have reviewed the services, pricing, deposit calculation, and booking policies shown in this proposal and authorize Exhale Elite Maids to use this signed proposal as the service authorization.</p>
+                  </div>
+                  <div class="sig-preview"><img id="pdf-signature" alt="Client signature" style="display:none;"></div>
+                  <div class="sig-label">Client Signature</div>
+                  <div class="approval-grid">
+                    <div class="approval-field"><strong id="pdf-signature-name">Client name</strong></div>
+                    <div class="approval-field"><span id="pdf-signed-date">Signature date</span></div>
+                  </div>
+                </div>
+                <div class="pdf-footer"><span>Exhale Elite Maids</span><span>Authorization · Page 2 of 2</span></div>
+              </section>
+            </div>
+          </div>
         </section>
 
         <div class="nav" id="navigation">
@@ -304,85 +408,6 @@
         </div>
       </form>
     </main>
-  </div>
-
-  <!-- Master Generated PDF Template -->
-  <div id="pdf-document" aria-hidden="true">
-    <section class="pdf-page">
-      <div class="pdf-brand">Exhale Elite Maids</div>
-      <div class="pdf-title">Professional Cleaning Services · Proposal &amp; Booking Agreement</div>
-      <div style="margin-top:16px"><span class="readonly-badge">Client Proposal</span></div>
-      
-      <!-- Step 1 Collected Info -->
-      <div class="pdf-meta">
-        <div class="pdf-card">
-          <h3>Client Information</h3>
-          <p><strong id="pdf-client-name">—</strong></p>
-          <p id="pdf-client-email">—</p>
-          <p id="pdf-client-phone">—</p>
-        </div>
-        <div class="pdf-card">
-          <h3>Service Details</h3>
-          <p><strong>Service Date:</strong> <span id="pdf-service-date">—</span></p>
-          <p><strong>Property:</strong> <span id="pdf-address">—</span></p>
-          <p><strong>Generated Date:</strong> <span id="pdf-generated">—</span></p>
-        </div>
-      </div>
-      
-      <!-- Step 2 Collected Services -->
-      <div class="pdf-section">
-        <h2>Services Selected</h2>
-        <table class="pdf-table">
-          <thead><tr><th>Service Name</th><th>Quoted Price</th></tr></thead>
-          <tbody id="pdf-services"></tbody>
-        </table>
-      </div>
-      
-      <!-- Step 3 Collected Pricing -->
-      <div class="pdf-total">
-        <div><span>Service Subtotal</span><span id="pdf-subtotal">$0.00</span></div>
-        <div><span>Travel / Mileage Fee</span><span id="pdf-travel">$0.00</span></div>
-        <div><span>Supply Fee</span><span id="pdf-supply">$0.00</span></div>
-        <div class="grand"><span>Total Proposal</span><span id="pdf-total">$0.00</span></div>
-        <div class="deposit"><span>Booking Deposit</span><span id="pdf-deposit">$0.00</span></div>
-      </div>
-      
-      <div class="pdf-note"><strong>Proposal summary:</strong> The services and pricing shown above represent the work selected for this proposal. Final scope and pricing are confirmed in writing before booking.</div>
-      <div class="pdf-footer"><span>Exhale Elite Maids</span><span>Proposal Summary · Page 1 of 2</span></div>
-    </section>
-    
-    <!-- Step 4 Collected Terms & Authorization -->
-    <section class="pdf-page">
-      <div class="pdf-brand">Exhale Elite Maids</div>
-      <div class="pdf-title">Terms, Policies &amp; Client Authorization</div>
-      <div class="pdf-section pdf-policy">
-        <h2>Booking Policies</h2>
-        <h3>1. Cancellation &amp; Deposit</h3>
-        <p>48+ hours notice: the trip-expense deposit is refunded or credited toward a future service. Less than 48 hours notice: the deposit is retained to cover fuel and supply costs already committed to the appointment.</p>
-        <h3>2. Rescheduling</h3>
-        <p>24+ hours notice: the deposit transfers 100% to the new date or to a different service of equal or greater value. Less than 24 hours notice or a no-show: the deposit is forfeited and a new deposit is required to rebook.</p>
-        <h3>3. Access &amp; Utilities</h3>
-        <p>Client agrees to provide safe property access, running hot/cold water, and functional electricity during scheduled service hours.</p>
-        <h3>4. Inclement Weather</h3>
-        <p>For exterior services or when travel is unsafe, Exhale Elite Maids will proactively reschedule at no penalty. The deposit carries over to the next available date.</p>
-        <h3>5. Scope &amp; Changes</h3>
-        <p>Final scope and pricing are confirmed in writing before booking. Material changes in property condition, access, square footage, or requested work may require a written change to the proposal price.</p>
-      </div>
-      
-      <div class="pdf-section">
-        <h2>Client Authorization</h2>
-        <div class="pdf-card">
-          <p>I acknowledge that I have reviewed the services, pricing, deposit calculation, and booking policies shown in this proposal and authorize Exhale Elite Maids to use this signed proposal as the service authorization.</p>
-        </div>
-        <div class="sig-preview"><img id="pdf-signature" alt="Client signature" style="display:none;"></div>
-        <div class="sig-label">Client Signature</div>
-        <div class="approval-grid">
-          <div class="approval-field"><strong id="pdf-signature-name">Client name</strong></div>
-          <div class="approval-field"><span id="pdf-signed-date">Signature date</span></div>
-        </div>
-      </div>
-      <div class="pdf-footer"><span>Exhale Elite Maids</span><span>Authorization · Page 2 of 2</span></div>
-    </section>
   </div>
 
   <script>
@@ -512,7 +537,7 @@
 
       $('clear-signature').addEventListener('click', () => { if (state.signaturePad) state.signaturePad.clear(); });
 
-      // Compile data into template
+      // Compile steps 1-4 into single document structure
       function compileProposalData() {
         $('pdf-client-name').textContent = $('client-name').value || 'Not specified';
         $('pdf-client-email').textContent = $('client-email').value || 'Not specified';
@@ -557,41 +582,15 @@
         $('pdf-signed-date').textContent = localDateString();
       }
 
-      // Download PDF Event Handler
-      $('download-pdf').addEventListener('click', async () => {
-        if (state.signaturePad && state.signaturePad.isEmpty()) {
-          setFinalStatus('Please sign before downloading the PDF proposal.', 'error');
-          return;
-        }
-
-        setFinalStatus('Generating PDF proposal, please wait...', 'success');
-        
-        compileProposalData();
-
+      async function triggerPdfDownload() {
+        setFinalStatus('Generating PDF download...', 'success');
         const target = $('pdf-document');
-
-        // Position target at top-left of document window
-        target.style.position = 'absolute';
-        target.style.top = '0';
-        target.style.left = '0';
-        target.style.zIndex = '99999';
-
-        await new Promise(resolve => setTimeout(resolve, 300));
-
         const opt = {
           margin: 0,
           filename: sanitizeFilename($('client-name').value) + '_Proposal.pdf',
           image: { type: 'jpeg', quality: 0.98 },
-          html2canvas: { 
-            scale: 2, 
-            useCORS: true, 
-            logging: false,
-            scrollX: 0,
-            scrollY: 0,
-            windowWidth: 816
-          },
-          jsPDF: { unit: 'in', format: 'letter', orientation: 'portrait' },
-          pagebreak: { mode: ['css', 'legacy'] }
+          html2canvas: { scale: 2, useCORS: true, logging: false },
+          jsPDF: { unit: 'in', format: 'letter', orientation: 'portrait' }
         };
 
         try {
@@ -599,14 +598,27 @@
           setFinalStatus('PDF downloaded successfully!', 'success');
         } catch (err) {
           console.error(err);
-          setFinalStatus('Error generating PDF. Please try again.', 'error');
-        } finally {
-          target.style.position = 'absolute';
-          target.style.left = '-9999px';
-          target.style.top = '0';
-          target.style.zIndex = '-9999';
+          setFinalStatus('Error downloading PDF. Try clicking Save PDF File.', 'error');
         }
+      }
+
+      // Generate & Display Document Handler
+      $('download-pdf').addEventListener('click', () => {
+        if (state.signaturePad && state.signaturePad.isEmpty()) {
+          setFinalStatus('Please sign before downloading the PDF proposal.', 'error');
+          return;
+        }
+
+        compileProposalData();
+        
+        const wrapper = $('document-preview-wrapper');
+        wrapper.classList.add('visible');
+        wrapper.scrollIntoView({ behavior: 'smooth', block: 'start' });
+
+        triggerPdfDownload();
       });
+
+      $('save-pdf-btn').addEventListener('click', triggerPdfDownload);
 
       // Submit Form Handler
       $('finalize').addEventListener('click', () => {
