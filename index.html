@@ -1,0 +1,550 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+  <meta charset="UTF-8" />
+  <meta name="viewport" content="width=device-width, initial-scale=1.0" />
+  <title>Exhale Elite Maids - Proposal & Booking Agreement</title>
+  <!-- Tailwind CSS -->
+  <script src="https://cdn.tailwindcss.com"></script>
+  <!-- html2pdf.js for Client-Side PDF Generation -->
+  <script src="https://cdnjs.cloudflare.com/ajax/libs/html2pdf.js/0.10.1/html2pdf.bundle.min.js"></script>
+  <!-- Signature Pad JS -->
+  <script src="https://cdn.jsdelivr.net/npm/signature_pad@4.1.7/dist/signature_pad.umd.min.js"></script>
+  <style>
+    .step { display: none; }
+    .step.active { display: block; }
+    canvas.sig-pad { border: 1px dashed #cbd5e1; background-color: #f8fafc; border-radius: 0.375rem; cursor: crosshair; }
+  </style>
+</head>
+<body class="bg-slate-100 text-slate-800 min-h-screen pb-12">
+
+  <!-- TOP HEADER -->
+  <header class="bg-slate-900 text-white py-6 shadow-md mb-8">
+    <div class="max-w-4xl mx-auto px-4 text-center">
+      <h1 class="text-2xl md:text-3xl font-bold tracking-wider uppercase">Exhale Elite Maids</h1>
+      <p class="text-slate-400 text-sm mt-1">Professional Cleaning Services | Jasper, Georgia</p>
+      <p class="text-xs text-slate-500 mt-0.5">Client Proposal & Booking Agreement Generator</p>
+    </div>
+  </header>
+
+  <main class="max-w-4xl mx-auto px-4">
+    <!-- FORM CONTAINER -->
+    <div class="bg-white rounded-xl shadow-lg border border-slate-200 overflow-hidden">
+      
+      <!-- PROGRESS BAR -->
+      <div class="bg-slate-50 border-b border-slate-200 p-4">
+        <div class="flex justify-between text-xs font-semibold text-slate-500 mb-2">
+          <span id="step-indicator-1" class="text-slate-900">1. Client Info</span>
+          <span id="step-indicator-2">2. Services</span>
+          <span id="step-indicator-3">3. Pricing & Deposit</span>
+          <span id="step-indicator-4">4. Terms & Sign</span>
+        </div>
+        <div class="w-full bg-slate-200 h-2 rounded-full overflow-hidden">
+          <div id="progress-bar" class="bg-slate-900 h-full w-1/4 transition-all duration-300"></div>
+        </div>
+      </div>
+
+      <form id="eform" class="p-6 md:p-8">
+        
+        <!-- STEP 1: CLIENT & PROPERTY INFO -->
+        <div class="step active" id="step-1">
+          <h2 class="text-xl font-bold text-slate-900 border-b pb-2 mb-4">1. Client & Property Information</h2>
+          <div class="grid grid-cols-1 md:grid-cols-2 gap-4">
+            <div>
+              <label class="block text-sm font-medium text-slate-700">Prepared For (Client Name) *</label>
+              <input type="text" id="clientName" required class="w-full border border-slate-300 rounded p-2 text-sm mt-1 focus:ring-2 focus:ring-slate-900 focus:outline-none" placeholder="Jane Doe" />
+            </div>
+            <div>
+              <label class="block text-sm font-medium text-slate-700">Date *</label>
+              <input type="date" id="docDate" required class="w-full border border-slate-300 rounded p-2 text-sm mt-1 focus:ring-2 focus:ring-slate-900 focus:outline-none" />
+            </div>
+            <div>
+              <label class="block text-sm font-medium text-slate-700">Prepared By</label>
+              <input type="text" id="preparedBy" value="Harley Rose" class="w-full border border-slate-300 rounded p-2 text-sm mt-1 bg-slate-50" />
+            </div>
+            <div>
+              <label class="block text-sm font-medium text-slate-700">Proposal #</label>
+              <input type="text" id="proposalNum" class="w-full border border-slate-300 rounded p-2 text-sm mt-1 focus:ring-2 focus:ring-slate-900 focus:outline-none" placeholder="EEM-2026-001" />
+            </div>
+            <div class="md:col-span-2">
+              <label class="block text-sm font-medium text-slate-700">Property Address *</label>
+              <input type="text" id="propertyAddress" required class="w-full border border-slate-300 rounded p-2 text-sm mt-1 focus:ring-2 focus:ring-slate-900 focus:outline-none" placeholder="123 Main St, Jasper, GA 30143" />
+            </div>
+            <div>
+              <label class="block text-sm font-medium text-slate-700">Square Footage</label>
+              <input type="text" id="sqFt" class="w-full border border-slate-300 rounded p-2 text-sm mt-1 focus:ring-2 focus:ring-slate-900 focus:outline-none" placeholder="e.g. 2,200 sq ft" />
+            </div>
+            <div>
+              <label class="block text-sm font-medium text-slate-700">Beds / Baths</label>
+              <input type="text" id="bedsBaths" class="w-full border border-slate-300 rounded p-2 text-sm mt-1 focus:ring-2 focus:ring-slate-900 focus:outline-none" placeholder="3 Beds / 2.5 Baths" />
+            </div>
+            <div>
+              <label class="block text-sm font-medium text-slate-700">Occupancy Status</label>
+              <select id="occupancy" class="w-full border border-slate-300 rounded p-2 text-sm mt-1 focus:ring-2 focus:ring-slate-900 focus:outline-none">
+                <option value="Occupied">Occupied</option>
+                <option value="Vacant">Vacant</option>
+              </select>
+            </div>
+            <div>
+              <label class="block text-sm font-medium text-slate-700">Pets</label>
+              <input type="text" id="pets" class="w-full border border-slate-300 rounded p-2 text-sm mt-1 focus:ring-2 focus:ring-slate-900 focus:outline-none" placeholder="None / 2 Dogs (Indoor)" />
+            </div>
+            <div class="md:col-span-2">
+              <label class="block text-sm font-medium text-slate-700">Special Notes / Areas of Focus</label>
+              <textarea id="specialNotes" rows="3" class="w-full border border-slate-300 rounded p-2 text-sm mt-1 focus:ring-2 focus:ring-slate-900 focus:outline-none" placeholder="Focus on kitchen backsplash, interior oven, master bathroom..."></textarea>
+            </div>
+          </div>
+        </div>
+
+        <!-- STEP 2: SERVICE SELECTION -->
+        <div class="step" id="step-2">
+          <h2 class="text-xl font-bold text-slate-900 border-b pb-2 mb-4">2. Service(s) Requested</h2>
+          <p class="text-xs text-slate-500 mb-4">Select all cleaning services applicable to this proposal:</p>
+          <div class="grid grid-cols-1 md:grid-cols-2 gap-3 mb-6">
+            <label class="flex items-center space-x-3 p-3 border rounded-lg hover:bg-slate-50 cursor-pointer">
+              <input type="checkbox" value="Standard Recurring Cleaning" class="service-checkbox h-4 w-4 text-slate-900 focus:ring-slate-900 border-slate-300 rounded">
+              <span class="text-sm font-medium text-slate-700">Standard Recurring Cleaning</span>
+            </label>
+            <label class="flex items-center space-x-3 p-3 border rounded-lg hover:bg-slate-50 cursor-pointer">
+              <input type="checkbox" value="Deep Cleaning" class="service-checkbox h-4 w-4 text-slate-900 focus:ring-slate-900 border-slate-300 rounded">
+              <span class="text-sm font-medium text-slate-700">Deep Cleaning</span>
+            </label>
+            <label class="flex items-center space-x-3 p-3 border rounded-lg hover:bg-slate-50 cursor-pointer">
+              <input type="checkbox" value="Move-In / Move-Out" class="service-checkbox h-4 w-4 text-slate-900 focus:ring-slate-900 border-slate-300 rounded">
+              <span class="text-sm font-medium text-slate-700">Move-In / Move-Out</span>
+            </label>
+            <label class="flex items-center space-x-3 p-3 border rounded-lg hover:bg-slate-50 cursor-pointer">
+              <input type="checkbox" value="Builder Final Clean" class="service-checkbox h-4 w-4 text-slate-900 focus:ring-slate-900 border-slate-300 rounded">
+              <span class="text-sm font-medium text-slate-700">Builder Final Clean</span>
+            </label>
+            <label class="flex items-center space-x-3 p-3 border rounded-lg hover:bg-slate-50 cursor-pointer">
+              <input type="checkbox" value="Window Cleaning" class="service-checkbox h-4 w-4 text-slate-900 focus:ring-slate-900 border-slate-300 rounded">
+              <span class="text-sm font-medium text-slate-700">Window Cleaning</span>
+            </label>
+            <label class="flex items-center space-x-3 p-3 border rounded-lg hover:bg-slate-50 cursor-pointer">
+              <input type="checkbox" value="Gutter Cleaning" class="service-checkbox h-4 w-4 text-slate-900 focus:ring-slate-900 border-slate-300 rounded">
+              <span class="text-sm font-medium text-slate-700">Gutter Cleaning</span>
+            </label>
+          </div>
+          <div class="mb-4">
+            <label class="block text-sm font-medium text-slate-700">Other Service / Custom Scope</label>
+            <input type="text" id="otherService" class="w-full border border-slate-300 rounded p-2 text-sm mt-1 focus:ring-2 focus:ring-slate-900 focus:outline-none" placeholder="e.g. Post-Remodel Touch-Up" />
+          </div>
+        </div>
+
+        <!-- STEP 3: PRICING & DEPOSIT CALCULATOR -->
+        <div class="step" id="step-3">
+          <h2 class="text-xl font-bold text-slate-900 border-b pb-2 mb-4">3. Pricing & Trip Expense Deposit</h2>
+          
+          <!-- PRICING BREAKDOWN -->
+          <div class="bg-slate-50 p-4 rounded-lg border border-slate-200 mb-6 space-y-3">
+            <h3 class="text-sm font-semibold text-slate-900 uppercase tracking-wider mb-2">Service Pricing Breakdown</h3>
+            <div class="grid grid-cols-1 md:grid-cols-3 gap-3">
+              <div>
+                <label class="block text-xs font-medium text-slate-600">Base Service Price ($)</label>
+                <input type="number" id="basePrice" min="0" step="0.01" value="0.00" class="calc-trigger w-full border border-slate-300 rounded p-2 text-sm mt-1 font-mono" />
+              </div>
+              <div>
+                <label class="block text-xs font-medium text-slate-600">Add-Ons ($)</label>
+                <input type="number" id="addOnsPrice" min="0" step="0.01" value="0.00" class="calc-trigger w-full border border-slate-300 rounded p-2 text-sm mt-1 font-mono" />
+              </div>
+              <div>
+                <label class="block text-xs font-medium text-slate-600">Travel Fee ($)</label>
+                <input type="number" id="travelFee" min="0" step="0.01" value="0.00" class="calc-trigger w-full border border-slate-300 rounded p-2 text-sm mt-1 font-mono" />
+              </div>
+            </div>
+            <div class="pt-2 border-t border-slate-200 flex justify-between items-center font-bold text-slate-900">
+              <span>Subtotal:</span>
+              <span id="subtotalDisplay" class="font-mono text-lg">$0.00</span>
+            </div>
+          </div>
+
+          <!-- TRIP EXPENSE DEPOSIT CALCULATOR -->
+          <div class="bg-blue-50/50 p-4 rounded-lg border border-blue-200 mb-6 space-y-3">
+            <div class="flex justify-between items-start">
+              <div>
+                <h3 class="text-sm font-semibold text-slate-900 uppercase tracking-wider">Trip Expense Deposit</h3>
+                <p class="text-xs text-slate-600 mt-0.5">Reserves appointment & covers fuel/supplies. Applied 100% to final invoice.</p>
+              </div>
+            </div>
+            
+            <div class="grid grid-cols-1 md:grid-cols-2 gap-3 pt-2">
+              <div>
+                <label class="block text-xs font-medium text-slate-700">Round-Trip Miles (from Jasper, GA)</label>
+                <input type="number" id="roundTripMiles" min="0" step="0.1" value="0" class="calc-trigger w-full border border-slate-300 rounded p-2 text-sm mt-1 font-mono" />
+                <span class="text-xs text-slate-500">Rate: $0.76/mile (IRS standard)</span>
+              </div>
+              <div>
+                <label class="block text-xs font-medium text-slate-700">Supply Fee Flat Rate ($15 – $30)</label>
+                <input type="number" id="supplyFee" min="15" max="30" step="1" value="20" class="calc-trigger w-full border border-slate-300 rounded p-2 text-sm mt-1 font-mono" />
+              </div>
+            </div>
+
+            <div class="pt-2 border-t border-blue-200 flex justify-between items-center font-bold text-blue-950">
+              <span>Total Deposit Due Now:</span>
+              <span id="depositDisplay" class="font-mono text-lg">$20.00</span>
+            </div>
+          </div>
+
+          <!-- TOTAL ESTIMATED PRICE -->
+          <div class="bg-slate-900 text-white p-4 rounded-lg flex justify-between items-center">
+            <div>
+              <p class="text-xs text-slate-400 uppercase tracking-wider font-semibold">Total Estimated Price</p>
+              <p class="text-xs text-slate-300">(Subtotal amount; deposit applied at time of service)</p>
+            </div>
+            <span id="totalEstimateDisplay" class="font-mono text-2xl font-bold text-emerald-400">$0.00</span>
+          </div>
+        </div>
+
+        <!-- STEP 4: TERMS & SIGNATURES -->
+        <div class="step" id="step-4">
+          <h2 class="text-xl font-bold text-slate-900 border-b pb-2 mb-4">4. Terms, Policies & Client Approval</h2>
+          
+          <div class="text-xs text-slate-600 space-y-2 bg-slate-50 p-4 rounded border border-slate-200 mb-6 max-h-48 overflow-y-auto">
+            <p><strong>Cancellation Policy:</strong> 48+ hours notice: deposit fully refunded/credited. &lt;48 hours notice: deposit retained to cover committed fuel and supply costs.</p>
+            <p><strong>Rescheduling Policy:</strong> 24+ hours notice: deposit transfers 100% to new date. &lt;24 hours notice or no-show: deposit forfeited; new deposit required to rebook.</p>
+            <p><strong>Inclement Weather Policy:</strong> If travel is unsafe or service is weather-dependent, Exhale Elite Maids will reschedule with zero penalty and deposit automatically carries forward.</p>
+            <p><strong>Payment Policy:</strong> Deposit due to confirm booking. Remaining balance due upon completion. Accepted: cash, check, card, digital transfer.</p>
+            <p><strong>Damage & Change Orders:</strong> Reasonable care exercised. Pre-existing damage should be disclosed. Any site scope changes discovered will be documented and client-approved prior to additional work.</p>
+          </div>
+
+          <div class="grid grid-cols-1 md:grid-cols-2 gap-6 mb-6">
+            <!-- CLIENT SIGNATURE -->
+            <div>
+              <div class="flex justify-between items-center mb-1">
+                <label class="block text-xs font-semibold text-slate-700">Client Signature *</label>
+                <button type="button" id="clearClientSig" class="text-xs text-red-600 underline">Clear</button>
+              </div>
+              <canvas id="clientSigPad" class="sig-pad w-full h-28"></canvas>
+            </div>
+            
+            <!-- REPRESENTATIVE SIGNATURE -->
+            <div>
+              <div class="flex justify-between items-center mb-1">
+                <label class="block text-xs font-semibold text-slate-700">Exhale Elite Maids Representative *</label>
+                <button type="button" id="clearRepSig" class="text-xs text-red-600 underline">Clear</button>
+              </div>
+              <canvas id="repSigPad" class="sig-pad w-full h-28"></canvas>
+            </div>
+          </div>
+        </div>
+
+        <!-- NAVIGATION BUTTONS -->
+        <div class="mt-8 pt-4 border-t border-slate-200 flex justify-between">
+          <button type="button" id="prevBtn" class="bg-slate-200 text-slate-700 px-5 py-2 rounded-lg font-semibold text-sm hover:bg-slate-300 transition hidden">Previous</button>
+          <div class="ml-auto">
+            <button type="button" id="nextBtn" class="bg-slate-900 text-white px-6 py-2 rounded-lg font-semibold text-sm hover:bg-slate-800 transition">Next Step</button>
+            <button type="button" id="generatePdfBtn" class="bg-emerald-600 text-white px-6 py-2 rounded-lg font-semibold text-sm hover:bg-emerald-700 transition hidden">Generate & Download Proposal PDF</button>
+          </div>
+        </div>
+
+      </form>
+    </div>
+  </main>
+
+  <!-- HIDDEN PRINT/PDF TEMPLATE MATCHING OPERATIONAL MANUAL FORMAT -->
+  <div class="hidden">
+    <div id="pdf-template" class="p-8 bg-white text-slate-900 font-sans text-xs leading-relaxed" style="width: 790px;">
+      
+      <!-- PDF HEADER -->
+      <div class="border-b-2 border-slate-900 pb-4 mb-4 flex justify-between items-end">
+        <div>
+          <h1 class="text-2xl font-bold tracking-wider uppercase text-slate-900">EXHALE ELITE MAIDS</h1>
+          <p class="text-xs text-slate-600 font-medium">Professional Cleaning Services | Jasper, Georgia</p>
+        </div>
+        <div class="text-right">
+          <h2 class="text-sm font-bold text-slate-800 uppercase">Client Proposal & Booking Agreement</h2>
+          <p class="text-xs text-slate-500">Proposal #: <span id="pdf-proposalNum"></span></p>
+        </div>
+      </div>
+
+      <!-- METADATA BLOCK -->
+      <div class="grid grid-cols-2 gap-4 bg-slate-50 p-3 rounded border border-slate-200 mb-4">
+        <div>
+          <p><strong>Prepared For:</strong> <span id="pdf-clientName"></span></p>
+          <p><strong>Property Address:</strong> <span id="pdf-address"></span></p>
+          <p><strong>Square Footage:</strong> <span id="pdf-sqFt"></span></p>
+          <p><strong>Beds / Baths:</strong> <span id="pdf-bedsBaths"></span></p>
+        </div>
+        <div>
+          <p><strong>Date:</strong> <span id="pdf-date"></span></p>
+          <p><strong>Prepared By:</strong> <span id="pdf-preparedBy"></span></p>
+          <p><strong>Occupied / Vacant:</strong> <span id="pdf-occupancy"></span></p>
+          <p><strong>Pets:</strong> <span id="pdf-pets"></span></p>
+        </div>
+      </div>
+
+      <div class="mb-4">
+        <p><strong>Special Notes / Focus Areas:</strong> <span id="pdf-specialNotes"></span></p>
+      </div>
+
+      <!-- SERVICES REQUESTED -->
+      <div class="mb-4">
+        <h3 class="font-bold text-slate-900 border-b border-slate-300 pb-1 mb-2 uppercase text-xs">Service(s) Requested</h3>
+        <p id="pdf-services" class="font-medium text-slate-800"></p>
+      </div>
+
+      <!-- PRICING TABLE -->
+      <div class="mb-4">
+        <h3 class="font-bold text-slate-900 border-b border-slate-300 pb-1 mb-2 uppercase text-xs">Pricing Breakdown</h3>
+        <table class="w-full border-collapse border border-slate-300 text-left">
+          <thead class="bg-slate-100">
+            <tr>
+              <th class="border border-slate-300 p-1.5">Line Item</th>
+              <th class="border border-slate-300 p-1.5 text-right">Amount</th>
+            </tr>
+          </thead>
+          <tbody>
+            <tr>
+              <td class="border border-slate-300 p-1.5">Base Service Price</td>
+              <td class="border border-slate-300 p-1.5 text-right font-mono" id="pdf-basePrice">$0.00</td>
+            </tr>
+            <tr>
+              <td class="border border-slate-300 p-1.5">Add-Ons</td>
+              <td class="border border-slate-300 p-1.5 text-right font-mono" id="pdf-addOns">$0.00</td>
+            </tr>
+            <tr>
+              <td class="border border-slate-300 p-1.5">Travel Fee</td>
+              <td class="border border-slate-300 p-1.5 text-right font-mono" id="pdf-travelFee">$0.00</td>
+            </tr>
+            <tr class="font-bold bg-slate-50">
+              <td class="border border-slate-300 p-1.5">Subtotal</td>
+              <td class="border border-slate-300 p-1.5 text-right font-mono" id="pdf-subtotal">$0.00</td>
+            </tr>
+          </tbody>
+        </table>
+      </div>
+
+      <!-- TRIP EXPENSE DEPOSIT TABLE -->
+      <div class="mb-4">
+        <h3 class="font-bold text-slate-900 border-b border-slate-300 pb-1 mb-1 uppercase text-xs">Trip Expense Deposit</h3>
+        <p class="text-[10px] text-slate-500 mb-2">Reserves appointment & covers fuel/supply costs. Applied 100% to final invoice total.</p>
+        <table class="w-full border-collapse border border-slate-300 text-left">
+          <thead class="bg-slate-100">
+            <tr>
+              <th class="border border-slate-300 p-1.5">Deposit Component</th>
+              <th class="border border-slate-300 p-1.5">Calculation</th>
+              <th class="border border-slate-300 p-1.5 text-right">Amount</th>
+            </tr>
+          </thead>
+          <tbody>
+            <tr>
+              <td class="border border-slate-300 p-1.5">Fuel / Mileage</td>
+              <td class="border border-slate-300 p-1.5"><span id="pdf-miles">0</span> miles × $0.76 (IRS std rate)</td>
+              <td class="border border-slate-300 p-1.5 text-right font-mono" id="pdf-mileageAmount">$0.00</td>
+            </tr>
+            <tr>
+              <td class="border border-slate-300 p-1.5">Supplies</td>
+              <td class="border border-slate-300 p-1.5">Flat fee</td>
+              <td class="border border-slate-300 p-1.5 text-right font-mono" id="pdf-supplyAmount">$0.00</td>
+            </tr>
+            <tr class="font-bold bg-slate-50">
+              <td class="border border-slate-300 p-1.5" colspan="2">Total Deposit Due Now</td>
+              <td class="border border-slate-300 p-1.5 text-right font-mono" id="pdf-totalDeposit">$0.00</td>
+            </tr>
+          </tbody>
+        </table>
+      </div>
+
+      <div class="p-2 bg-slate-900 text-white font-bold flex justify-between items-center rounded mb-4">
+        <span>TOTAL ESTIMATED PRICE (Subtotal, deposit applied at service):</span>
+        <span class="font-mono text-sm" id="pdf-totalEstimate">$0.00</span>
+      </div>
+
+      <!-- TERMS & POLICIES -->
+      <div class="mb-4 border-t border-slate-200 pt-2 space-y-1 text-[10px] text-slate-600">
+        <p><strong>Cancellation Policy:</strong> 48+ hours notice: deposit fully refunded/credited. &lt;48 hours notice: deposit retained to cover fuel and supply costs.</p>
+        <p><strong>Rescheduling Policy:</strong> 24+ hours notice: deposit transfers 100% to new date. &lt;24 hours notice or no-show: deposit forfeited; new deposit required to rebook.</p>
+        <p><strong>Inclement Weather Policy:</strong> For unsafe travel or exterior work, Exhale Elite Maids will reschedule with zero penalty and deposit carries forward.</p>
+        <p><strong>Payment & Damage Policies:</strong> Remaining balance due upon service completion. Pre-existing damage should be disclosed. Any site scope changes discovered will require client approval before additional charges apply.</p>
+      </div>
+
+      <!-- SIGNATURE BLOCK -->
+      <div class="mt-6 pt-2 border-t-2 border-slate-900 grid grid-cols-2 gap-8">
+        <div>
+          <p class="font-bold text-slate-800 mb-1">Client Approval</p>
+          <img id="pdf-clientSigImg" class="h-12 border-b border-slate-400 mb-1" src="" alt="Client Signature" />
+          <p class="text-[10px] text-slate-500">Date: <span id="pdf-clientSigDate"></span></p>
+        </div>
+        <div>
+          <p class="font-bold text-slate-800 mb-1">Exhale Elite Maids Representative</p>
+          <img id="pdf-repSigImg" class="h-12 border-b border-slate-400 mb-1" src="" alt="Rep Signature" />
+          <p class="text-[10px] text-slate-500">Date: <span id="pdf-repSigDate"></span></p>
+        </div>
+      </div>
+
+    </div>
+  </div>
+
+  <!-- SCRIPT LOGIC -->
+  <script>
+    let currentStep = 1;
+    const totalSteps = 4;
+
+    // Canvas Signature Pads
+    let clientPad, repPad;
+
+    document.addEventListener("DOMContentLoaded", () => {
+      // Default Date to Today
+      document.getElementById("docDate").valueAsDate = new Date();
+
+      // Initialize Signatures
+      const clientCanvas = document.getElementById("clientSigPad");
+      const repCanvas = document.getElementById("repSigPad");
+      clientPad = new SignaturePad(clientCanvas);
+      repPad = new SignaturePad(repCanvas);
+
+      // Resize Canvas helpers
+      function resizeCanvas() {
+        const ratio = Math.max(window.devicePixelRatio || 1, 1);
+        [clientCanvas, repCanvas].forEach(canvas => {
+          canvas.width = canvas.offsetWidth * ratio;
+          canvas.height = canvas.offsetHeight * ratio;
+          canvas.getContext("2d").scale(ratio, ratio);
+        });
+        clientPad.clear();
+        repPad.clear();
+      }
+      window.addEventListener("resize", resizeCanvas);
+      setTimeout(resizeCanvas, 200);
+
+      document.getElementById("clearClientSig").addEventListener("click", () => clientPad.clear());
+      document.getElementById("clearRepSig").addEventListener("click", () => repPad.clear());
+
+      // Calculation Listeners
+      document.querySelectorAll(".calc-trigger").forEach(input => {
+        input.addEventListener("input", calculateTotals);
+      });
+
+      calculateTotals();
+    });
+
+    // STEP NAVIGATION LOGIC
+    document.getElementById("nextBtn").addEventListener("click", () => {
+      if (currentStep < totalSteps) {
+        currentStep++;
+        updateWizardUI();
+      }
+    });
+
+    document.getElementById("prevBtn").addEventListener("click", () => {
+      if (currentStep > 1) {
+        currentStep--;
+        updateWizardUI();
+      }
+    });
+
+    function updateWizardUI() {
+      document.querySelectorAll(".step").forEach((el, index) => {
+        el.classList.toggle("active", index + 1 === currentStep);
+      });
+
+      // Progress bar & indicators
+      document.getElementById("progress-bar").style.width = `${(currentStep / totalSteps) * 100}%`;
+      for (let i = 1; i <= totalSteps; i++) {
+        const ind = document.getElementById(`step-indicator-${i}`);
+        if (i <= currentStep) {
+          ind.classList.add("text-slate-900", "font-bold");
+        } else {
+          ind.classList.remove("text-slate-900", "font-bold");
+        }
+      }
+
+      // Button states
+      document.getElementById("prevBtn").classList.toggle("hidden", currentStep === 1);
+      if (currentStep === totalSteps) {
+        document.getElementById("nextBtn").classList.add("hidden");
+        document.getElementById("generatePdfBtn").classList.remove("hidden");
+      } else {
+        document.getElementById("nextBtn").classList.remove("hidden");
+        document.getElementById("generatePdfBtn").classList.add("hidden");
+      }
+    }
+
+    // MATH CALCULATIONS
+    function calculateTotals() {
+      const base = parseFloat(document.getElementById("basePrice").value) || 0;
+      const addOns = parseFloat(document.getElementById("addOnsPrice").value) || 0;
+      const travel = parseFloat(document.getElementById("travelFee").value) || 0;
+      const miles = parseFloat(document.getElementById("roundTripMiles").value) || 0;
+      const supply = parseFloat(document.getElementById("supplyFee").value) || 0;
+
+      const subtotal = base + addOns + travel;
+      const mileageCost = miles * 0.76;
+      const totalDeposit = mileageCost + supply;
+
+      document.getElementById("subtotalDisplay").textContent = `$${subtotal.toFixed(2)}`;
+      document.getElementById("depositDisplay").textContent = `$${totalDeposit.toFixed(2)}`;
+      document.getElementById("totalEstimateDisplay").textContent = `$${subtotal.toFixed(2)}`;
+    }
+
+    // PDF GENERATION LOGIC
+    document.getElementById("generatePdfBtn").addEventListener("click", () => {
+      if (clientPad.isEmpty()) {
+        alert("Please provide a client signature before generating the proposal PDF.");
+        return;
+      }
+
+      // Sync Inputs into PDF Element
+      document.getElementById("pdf-clientName").textContent = document.getElementById("clientName").value || "N/A";
+      document.getElementById("pdf-date").textContent = document.getElementById("docDate").value || "N/A";
+      document.getElementById("pdf-preparedBy").textContent = document.getElementById("preparedBy").value || "Harley Rose";
+      document.getElementById("pdf-proposalNum").textContent = document.getElementById("proposalNum").value || "EEM-001";
+      document.getElementById("pdf-address").textContent = document.getElementById("propertyAddress").value || "N/A";
+      document.getElementById("pdf-sqFt").textContent = document.getElementById("sqFt").value || "N/A";
+      document.getElementById("pdf-bedsBaths").textContent = document.getElementById("bedsBaths").value || "N/A";
+      document.getElementById("pdf-occupancy").textContent = document.getElementById("occupancy").value;
+      document.getElementById("pdf-pets").textContent = document.getElementById("pets").value || "None";
+      document.getElementById("pdf-specialNotes").textContent = document.getElementById("specialNotes").value || "None";
+
+      // Services Checkboxes
+      const selectedServices = [];
+      document.querySelectorAll(".service-checkbox:checked").forEach(cb => selectedServices.push(cb.value));
+      const other = document.getElementById("otherService").value;
+      if (other) selectedServices.push(other);
+      document.getElementById("pdf-services").textContent = selectedServices.length > 0 ? selectedServices.join(", ") : "Standard Cleaning";
+
+      // Financials
+      const base = parseFloat(document.getElementById("basePrice").value) || 0;
+      const addOns = parseFloat(document.getElementById("addOnsPrice").value) || 0;
+      const travel = parseFloat(document.getElementById("travelFee").value) || 0;
+      const miles = parseFloat(document.getElementById("roundTripMiles").value) || 0;
+      const supply = parseFloat(document.getElementById("supplyFee").value) || 0;
+      
+      const subtotal = base + addOns + travel;
+      const mileageCost = miles * 0.76;
+      const totalDeposit = mileageCost + supply;
+
+      document.getElementById("pdf-basePrice").textContent = `$${base.toFixed(2)}`;
+      document.getElementById("pdf-addOns").textContent = `$${addOns.toFixed(2)}`;
+      document.getElementById("pdf-travelFee").textContent = `$${travel.toFixed(2)}`;
+      document.getElementById("pdf-subtotal").textContent = `$${subtotal.toFixed(2)}`;
+
+      document.getElementById("pdf-miles").textContent = miles.toString();
+      document.getElementById("pdf-mileageAmount").textContent = `$${mileageCost.toFixed(2)}`;
+      document.getElementById("pdf-supplyAmount").textContent = `$${supply.toFixed(2)}`;
+      document.getElementById("pdf-totalDeposit").textContent = `$${totalDeposit.toFixed(2)}`;
+      document.getElementById("pdf-totalEstimate").textContent = `$${subtotal.toFixed(2)}`;
+
+      // Signatures
+      document.getElementById("pdf-clientSigImg").src = clientPad.toDataURL();
+      document.getElementById("pdf-repSigImg").src = repPad.toDataURL();
+      document.getElementById("pdf-clientSigDate").textContent = document.getElementById("docDate").value;
+      document.getElementById("pdf-repSigDate").textContent = document.getElementById("docDate").value;
+
+      // Trigger html2pdf
+      const element = document.getElementById("pdf-template");
+      const clientName = document.getElementById("clientName").value || "Client";
+      const opt = {
+        margin:       0.3,
+        filename:     `Exhale_Elite_Maids_Proposal_${clientName.replace(/\s+/g, '_')}.pdf`,
+        image:        { type: 'jpeg', quality: 0.98 },
+        html2canvas:  { scale: 2 },
+        jsPDF:        { unit: 'in', format: 'letter', orientation: 'portrait' }
+      };
+
+      html2pdf().set(opt).from(element).save();
+    });
+  </script>
+</body>
+</html>
